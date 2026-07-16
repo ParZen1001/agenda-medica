@@ -41,27 +41,32 @@ jobs:
         run: pnpm --filter @agenda-medica/client build
 
       - name: Sincronizar assets web con Capacitor Android
-        id: capsync
-        run: npx cap sync android 2>&1 | tee /tmp/capsync.log
+        run: npx cap sync android
         working-directory: apps/client
-
-      - name: Publicar diagnóstico si falló cap sync
-        if: failure() && steps.capsync.outcome == 'failure'
-        run: |
-          BODY=$(tail -c 60000 /tmp/capsync.log | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")
-          curl -s -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
-            -d "{\"body\": $BODY}"
 
       - name: Dar permisos de ejecución a gradlew
         run: chmod +x android/gradlew
         working-directory: apps/client
 
+      - name: Instalar plataforma Android SDK requerida (API 36)
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;35.0.0" "platform-tools"
+
       - name: Compilar APK (debug, sin firmar)
-        run: ./gradlew assembleDebug
+        id: buildapk
+        run: ./gradlew assembleDebug 2>&1 | tee /tmp/gradle.log
         working-directory: apps/client/android
+
+      - name: Publicar diagnóstico si falló el build de Gradle
+        if: failure() && steps.buildapk.outcome == 'failure'
+        run: |
+          BODY=$(tail -c 60000 /tmp/gradle.log | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
+            -d "{\"body\": $BODY}"
 
       - name: Determinar nombre de la versión
         id: version
