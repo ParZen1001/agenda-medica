@@ -102,6 +102,35 @@ La API expone operaciones REST estándar (`GET`, `POST`, `PUT`, `DELETE`) sobre 
 
 **Medicamento**: `id`, `nombre`, `horario`, `frecuencia`, `observaciones`, `createdAt`
 
+## Empaquetado como aplicación Android (APK)
+
+El cliente web se empaqueta como app Android mediante **Capacitor**, ya configurado en
+`apps/client/capacitor.config.ts` y con la plataforma `apps/client/android` incluida en el repo.
+
+### Opción A — Release automático en GitHub (recomendado)
+
+El workflow [`Release APK`](.github/workflows/release-apk.yml) compila el proyecto y publica un
+`.apk` como **GitHub Release**:
+
+- Automático: al crear y subir un tag con formato `vX.Y.Z` (ej. `git tag v1.0.0 && git push origin v1.0.0`).
+- Manual: desde la pestaña **Actions** del repositorio → *Release APK* → *Run workflow*.
+
+El APK resultante queda disponible en la sección **Releases** del repositorio.
+
+### Opción B — Generar el APK localmente
+
+```bash
+cd apps/client
+pnpm build              # genera dist/
+npx cap sync android     # copia los assets web al proyecto Android
+cd android
+./gradlew assembleDebug  # genera app/build/outputs/apk/debug/app-debug.apk
+```
+
+Requiere JDK 17 y el Android SDK (o Android Studio) instalados localmente. El APK generado con
+`assembleDebug` no está firmado para producción; para una versión firmada de Play Store, configura
+`assembleRelease` con tu propio keystore.
+
 ## Trabajo futuro
 
 De acuerdo con las recomendaciones del informe del proyecto:
