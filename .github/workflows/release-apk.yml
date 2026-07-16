@@ -94,10 +94,14 @@ jobs:
             echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Listar APKs generados (diagnóstico)
+        run: find app/build/outputs -type f -name "*.apk" -o -type d
+        working-directory: apps/client/android
+
       - name: Renombrar APK
         run: |
-          mkdir -p ../../release
-          cp app/build/outputs/apk/debug/app-debug.apk ../../release/agenda-medica-${{ steps.version.outputs.tag }}.apk
+          mkdir -p "$GITHUB_WORKSPACE/release"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/release/agenda-medica-${{ steps.version.outputs.tag }}.apk"
         working-directory: apps/client/android
 
       - name: Publicar Release en GitHub con el APK
