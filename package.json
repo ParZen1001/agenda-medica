@@ -1,0 +1,20 @@
+{
+  "name": "agenda-medica",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sistema web para la gestión de citas médicas y recordatorios de medicamentos",
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./apps/* dev",
+    "dev:server": "pnpm --filter @agenda-medica/server dev",
+    "dev:client": "pnpm --filter @agenda-medica/client dev",
+    "build": "pnpm --filter @agenda-medica/shared build && pnpm --filter @agenda-medica/server build && pnpm --filter @agenda-medica/client build",
+    "db:generate": "pnpm --filter @agenda-medica/server db:generate",
+    "db:migrate": "pnpm --filter @agenda-medica/server db:migrate",
+    "db:studio": "pnpm --filter @agenda-medica/server db:studio",
+    "lint": "pnpm --recursive lint"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

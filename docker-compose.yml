@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agenda-medica-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agenda
+      POSTGRES_PASSWORD: agenda
+      POSTGRES_DB: agenda_medica
+    ports:
+      - "5432:5432"
+    volumes:
+      - agenda_medica_data:/var/lib/postgresql/data
+
+volumes:
+  agenda_medica_data:
