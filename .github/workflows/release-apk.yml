@@ -41,8 +41,25 @@ jobs:
         run: pnpm --filter @agenda-medica/client build
 
       - name: Sincronizar assets web con Capacitor Android
-        run: npx cap sync android
+        id: capsync
+        run: |
+          for i in 1 2 3; do
+            npx cap sync android 2>&1 | tee /tmp/capsync.log && exit 0
+            echo "Intento $i falló, reintentando..."
+            sleep 5
+          done
+          exit 1
         working-directory: apps/client
+
+      - name: Publicar diagnóstico si falló cap sync
+        if: failure() && steps.capsync.outcome == 'failure'
+        run: |
+          BODY=$(tail -c 60000 /tmp/capsync.log | python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))")
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
+            -d "{\"body\": $BODY}"
 
       - name: Dar permisos de ejecución a gradlew
         run: chmod +x android/gradlew
