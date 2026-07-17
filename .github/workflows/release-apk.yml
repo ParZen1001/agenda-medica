@@ -95,13 +95,16 @@ jobs:
           fi
 
       - name: Listar APKs generados (diagnóstico)
-        run: find app/build/outputs -type f -name "*.apk" -o -type d
+        run: find app/build -iname "*.apk" ; find app/build -maxdepth 3 -type d
         working-directory: apps/client/android
+        continue-on-error: true
 
       - name: Renombrar APK
         run: |
           mkdir -p "$GITHUB_WORKSPACE/release"
-          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/release/agenda-medica-${{ steps.version.outputs.tag }}.apk"
+          APK_PATH=$(find app/build -iname "*.apk" | head -n 1)
+          echo "APK encontrado en: $APK_PATH"
+          cp "$APK_PATH" "$GITHUB_WORKSPACE/release/agenda-medica-${{ steps.version.outputs.tag }}.apk"
         working-directory: apps/client/android
 
       - name: Publicar Release en GitHub con el APK
