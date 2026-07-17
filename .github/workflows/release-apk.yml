@@ -103,14 +103,15 @@ jobs:
         id: renameapk
         run: |
           set -euo pipefail
+          exec > >(tee /tmp/rename.log) 2>&1
           mkdir -p "$GITHUB_WORKSPACE/release"
-          APK_PATH=$(find app/build -iname "*.apk" | head -n 1)
+          APK_PATH=$(find app/build -iname "*.apk" -print -quit)
           echo "APK encontrado en: [$APK_PATH]"
           if [ -z "$APK_PATH" ]; then
             echo "No se encontró ningún APK" >&2
             exit 1
           fi
-          cp "$APK_PATH" "$GITHUB_WORKSPACE/release/agenda-medica-${{ steps.version.outputs.tag }}.apk" 2>&1 | tee /tmp/rename.log
+          cp "$APK_PATH" "$GITHUB_WORKSPACE/release/agenda-medica-${{ steps.version.outputs.tag }}.apk"
         working-directory: apps/client/android
 
       - name: Publicar diagnóstico si falló el renombrado
