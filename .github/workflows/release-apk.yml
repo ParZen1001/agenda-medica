@@ -43,6 +43,7 @@ jobs:
       - name: Sincronizar assets web con Capacitor Android
         id: capsync
         run: |
+          set -o pipefail
           for i in 1 2 3; do
             npx cap sync android 2>&1 | tee /tmp/capsync.log && exit 0
             echo "Intento $i falló, reintentando..."
@@ -72,7 +73,9 @@ jobs:
 
       - name: Compilar APK (debug, sin firmar)
         id: buildapk
-        run: ./gradlew assembleDebug 2>&1 | tee /tmp/gradle.log
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug 2>&1 | tee /tmp/gradle.log
         working-directory: apps/client/android
 
       - name: Publicar diagnóstico si falló el build de Gradle
