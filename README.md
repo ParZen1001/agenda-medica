@@ -46,7 +46,7 @@ La API expone operaciones REST estándar (`GET`, `POST`, `PUT`, `DELETE`) sobre 
 
 ## Requisitos previos
 
-- Node.js 18 o superior
+- Node.js 22 o superior
 - pnpm 9 (`npm install -g pnpm`)
 - Docker (opcional, para levantar PostgreSQL rápidamente)
 
